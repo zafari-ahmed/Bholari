@@ -1,0 +1,38 @@
+/framework/*
+/requirements/*
+/protected/runtime/*
+/protected/runtime/gii-1.1.30/
+/protected/runtime/gii-1.1.30/*
+protected/config/
+protected/config/*
+protected/config/database.php
+protected/config/main.php
+/uploads/games/*
+/uploads/amenities/*
+/uploads/venues/*
+/uploads/banners/*
+/assets/vendor/*
+/assets/letter/*
+.idea/*
+.idea
+runtime/gii-1.1.30/*
+protected/runtime/*
+
+# Ignore everything in the assets folder
+/assets/*
+# Except the dist folder
+!/assets/dist/
+
+assets/
+!assets/dist/
+# Ignore protected/runtime
+protected/runtime/
+
+# Ignore protected/config
+protected/config/
+
+# Ignore other common files
+.idea/
+vendor/
+node_modules/
+*.log
