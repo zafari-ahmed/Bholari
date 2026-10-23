@@ -272,10 +272,16 @@ class PlotController extends Controller
         $criteria->addCondition("t.phase_id = :phase");
         $criteria->params[':phase'] = $phaseId;
     
-        // Status Filter
-        if(isset($result_array['status']) && $result_array['status'] != ''){
+		// Status Filter (from DataTables ajax or URL)
+        $statusFilter = null;
+        if (isset($_GET['status']) && $_GET['status'] !== '') {
+            $statusFilter = $_GET['status'];
+        } elseif (isset($result_array['status']) && $result_array['status'] !== '') {
+            $statusFilter = $result_array['status'];
+        }
+        if ($statusFilter !== null && $statusFilter !== '') {
             $criteria->addCondition("t.status = :status");
-            $criteria->params[':status'] = $result_array['status'];
+            $criteria->params[':status'] = (int)$statusFilter;
         }
     
         // Search

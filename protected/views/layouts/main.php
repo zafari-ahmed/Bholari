@@ -322,6 +322,11 @@
                         <li>
                             <a href="<?php echo Yii::app()->baseUrl.'/dashboard'?>"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
                         </li>
+                        <?php if($userModel['user_type']['id'] == 1 || $userModel['user_type']['id'] == 5){?>
+                        <li>
+                            <a href="<?php echo Yii::app()->baseUrl.'/dashboard/stats'?>"><i class="fa fa-bar-chart-o fa-fw"></i> Plot States</a>
+                        </li>
+                        <?php }?>
                         <?php if($userModel['user_type']['id'] == 1 || $userModel['user_type']['id'] == 3 || $userModel['user_type']['id'] == 4 || $userModel['user_type']['id'] == 5 || $userModel['user_type']['id'] == 6){?>
                         <li>
                             <a href="#"><i class="fa fa-book fa-fw"></i> Bookings<span class="fa arrow"></span></a>
@@ -1056,7 +1061,7 @@
                     url: '<?php echo Yii::app()->baseUrl; ?>/plot/fetchall',
                     type: 'GET',
                     data: function(d){
-                        d.status = '<?php //echo (int)$status; ?>';
+                        d.status = '<?php echo (isset($_GET['status']) && $_GET['status'] !== '') ? (int)$_GET['status'] : ''; ?>';
                     }
                 },
                 // columnDefs: [

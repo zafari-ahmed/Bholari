@@ -1,6 +1,6 @@
 <div class="row">
     <div class="col-lg-12">
-        <h1 class="page-header">Plots</h1>
+        <h1 class="page-header"><?php echo (isset($_GET['status']) && $_GET['status'] !== '' && (int)$_GET['status'] === 0) ? 'Available Plots' : 'Plots'; ?></h1>
         <?php
             foreach(Yii::app()->user->getFlashes() as $key => $message) {
                 echo '<div class="alert alert-info alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'.$message.'</div>';
@@ -15,7 +15,7 @@
     <div class="col-lg-12">
         <div class="panel panel-default">
             <div class="panel-heading">
-                All Plots
+                <?php echo (isset($_GET['status']) && $_GET['status'] !== '' && (int)$_GET['status'] === 0) ? 'Available Plots' : 'All Plots'; ?>
                 <span class="pull-right">
                     <a href="<?php echo Yii::app()->baseUrl?>/report/exportavailableplot"><span class="label label-success">Export</span></a>
                     &nbsp;
