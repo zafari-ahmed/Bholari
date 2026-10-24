@@ -118,4 +118,12 @@ class Users extends CActiveRecord
 	{
 		return parent::model($className);
 	}
+
+	public static function isSuperAdmin($userModel = null)
+	{
+		if ($userModel === null) {
+			$userModel = Yii::app()->session->get('userModel');
+		}
+		return !empty($userModel['user_type']['id']) && (int)$userModel['user_type']['id'] === 1;
+	}
 }

@@ -45,6 +45,14 @@ class DashboardController extends Controller
 		);
 		// Same as Dashboard "Bookings" tile
 		$totalBookings = (int)CustomerPlots::model()->count();
+		// Same as Dashboard "Cancelled Bookings" tile
+		$cancelledBookings = (int)CustomerPlotCancelled::model()->count(array('group' => 'booking_id'));
+		$cancelledRefundTotal = (float)CustomerPlotCancelled::model()
+			->getDbConnection()
+			->createCommand()
+			->select('SUM(amount)')
+			->from(CustomerPlotCancelled::model()->tableName())
+			->queryScalar();
 
 		$sql = "
 			SELECT
@@ -104,10 +112,15 @@ class DashboardController extends Controller
 			}
 		}
 
+		// Regular = remaining balance bookings that are not overdue
+		$regularBookings = max(0, $remainingCount - $dueCount);
+
 		$this->render('stats', array(
 			'totalPlots' => $totalPlots,
 			'activePlots' => $activePlots,
 			'totalBookings' => $totalBookings,
+			'cancelledBookings' => $cancelledBookings,
+			'cancelledRefundTotal' => $cancelledRefundTotal,
 			'fullPaymentCount' => $fullPaymentCount,
 			'fullPaymentPlotAmount' => $fullPaymentPlotAmount,
 			'fullPaymentPaidAmount' => $fullPaymentPaidAmount,
@@ -115,6 +128,7 @@ class DashboardController extends Controller
 			'remainingAmountTotal' => $remainingAmountTotal,
 			'dueCount' => $dueCount,
 			'dueAmountTotal' => $dueAmountTotal,
+			'regularBookings' => $regularBookings,
 		));
 	}
 

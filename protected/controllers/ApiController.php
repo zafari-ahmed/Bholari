@@ -10,8 +10,10 @@ class ApiController extends Controller
 	{
 		// renders the view file 'protected/views/site/index.php'
 		// using the default layout 'protected/views/layouts/main.php'
-		
-		$user = Users::model()->find('(email_address = :email OR username = :email) AND password = :password AND status = 1',array(':email'=>$_POST['email'],':password'=>md5($_POST['password'])));
+		$email = isset($_POST['email']) ? $_POST['email'] : '';
+		$ip = ActivityLogs::clientIp();
+
+		$user = Users::model()->find('(email_address = :email OR username = :email) AND password = :password AND status = 1',array(':email'=>$email,':password'=>md5($_POST['password'])));
 		if($user){
 		    $user->createdOn = date('Y-m-d H:i:s');
 		    $user->save(false);
@@ -20,8 +22,30 @@ class ApiController extends Controller
 			$userModel['phase_id'] = 1;
 			$userModel['user_type'] = $user->userType->attributes;
 			Yii::app()->session->add('userModel',$userModel);
+			ActivityLogs::write(array(
+				'user_id' => $user->id,
+				'user_name' => trim($user->first_name.' '.$user->last_name),
+				'controller' => 'api',
+				'action' => 'authenticate',
+				'method' => 'POST',
+				'url' => Yii::app()->request->url,
+				'ip_address' => $ip,
+				'description' => 'Logged in successfully',
+				'request_data' => json_encode(array('email' => $email)),
+			), true);
 			echo json_encode(array('success'=>1,'message'=>'Logged in successfully.','data'=>$userModel));
 		} else{
+			ActivityLogs::write(array(
+				'user_id' => null,
+				'user_name' => $email,
+				'controller' => 'api',
+				'action' => 'authenticate',
+				'method' => 'POST',
+				'url' => Yii::app()->request->url,
+				'ip_address' => $ip,
+				'description' => 'Failed login',
+				'request_data' => json_encode(array('email' => $email)),
+			), true);
 			echo json_encode(array('error'=>1,'message'=>'Invalid email address or password.'));
 		}
 		

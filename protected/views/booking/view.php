@@ -779,13 +779,13 @@ if($userModel['user_type']['id'] == 1 || $userModel['user_type']['id'] == 5){
                        
                        
                        <?php if($booking->status==3){?>
-                        <tr><td colspan="3"><b>Paid Total</b></td><td colspan="9"><b><?php echo 'Rs. '.number_format($booking->customerPlotTransactionSumTransfer+$cpttTotal)?></b></td></tr>
-                        <tr><td colspan="3"><b>Balance</b></td><td colspan="9"><b><?php echo 'Rs. '.number_format($plotTotalText-$booking->customerPlotTransactionSumTransfer)?></b></td></tr>
+                        <tr><td colspan="3"><b>Paid Total</b></td><td colspan="10"><b><?php echo 'Rs. '.number_format($booking->customerPlotTransactionSumTransfer+$cpttTotal)?></b></td></tr>
+                        <tr><td colspan="3"><b>Balance</b></td><td colspan="10"><b><?php echo 'Rs. '.number_format($plotTotalText-$booking->customerPlotTransactionSumTransfer)?></b></td></tr>
                        <?php } else {?>
-                        <tr><td colspan="3"><b>Paid Total</b></td><td colspan="9"><b><?php echo 'Rs. '.number_format($booking->customerPlotTransactionSum+$cpttTotal)?></b></td></tr>
+                        <tr><td colspan="3"><b>Paid Total</b></td><td colspan="10"><b><?php echo 'Rs. '.number_format($booking->customerPlotTransactionSum+$cpttTotal)?></b></td></tr>
                        <?php }?>
                        
-                       <tr><td colspan="3"><b>Remaining</b></td><td colspan="9"><b><?php echo 'Rs. '.number_format($tpp-$booking->customerPlotTransactionSum-$cpttTotal)?></b></td></tr>
+                       <tr><td colspan="3"><b>Remaining</b></td><td colspan="10"><b><?php echo 'Rs. '.number_format($tpp-$booking->customerPlotTransactionSum-$cpttTotal)?></b></td></tr>
                        
                     </tbody>
                 </table>
@@ -1051,7 +1051,7 @@ if($userModel['user_type']['id'] == 1 || $userModel['user_type']['id'] == 5){
                             </div>
                             <div class="form-group col-lg-3">
                                 <label>Next Reminder</label>
-                                <input class="form-control calender"  name="next_reminder" placeholder="Next Reminder" autocomplete="off" required value="<?php echo date('Y-m-d', strtotime('+7 days')); ?>">
+                                <input class="form-control calenderr"  name="next_reminder" placeholder="Next Reminder" autocomplete="off" required value="<?php echo date('Y-m-d', strtotime('+7 days')); ?>">
                             </div>
                             <div class="form-group col-lg-12">
                                 <label>Remark</label>

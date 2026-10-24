@@ -34,6 +34,53 @@ class Controller extends CController
         }
 	}
 
+	protected function beforeAction($action)
+	{
+		$this->logUserActivity($action);
+		return parent::beforeAction($action);
+	}
+
+	protected function logUserActivity($action)
+	{
+		try {
+			$controllerId = strtolower($this->id);
+			$actionId = strtolower($action->id);
+			if (ActivityLogs::shouldBypass($controllerId, $actionId)) {
+				return;
+			}
+
+			$userModel = Yii::app()->session->get('userModel');
+			$userId = !empty($userModel['id']) ? (int)$userModel['id'] : null;
+			$userName = '';
+			if (!empty($userModel['first_name'])) {
+				$userName = trim($userModel['first_name'].' '.@$userModel['last_name']);
+			}
+			$method = Yii::app()->request->requestType;
+			$verb = ($method === 'POST') ? 'Submitted' : 'Opened';
+			$payload = array();
+			if (!empty($_GET)) {
+				$payload['get'] = ActivityLogs::sanitizeRequest($_GET);
+			}
+			if (!empty($_POST)) {
+				$payload['post'] = ActivityLogs::sanitizeRequest($_POST);
+			}
+
+			ActivityLogs::write(array(
+				'user_id' => $userId,
+				'user_name' => $userName !== '' ? $userName : 'Guest',
+				'controller' => $this->id,
+				'action' => $action->id,
+				'method' => $method,
+				'url' => parse_url(Yii::app()->request->url, PHP_URL_PATH),
+				'ip_address' => ActivityLogs::clientIp(),
+				'description' => $verb.' '.ucfirst($this->id).' / '.ucfirst($action->id),
+				'request_data' => $payload ? json_encode($payload) : null,
+			));
+		} catch (Exception $e) {
+			Yii::log('Activity log failed: '.$e->getMessage(), CLogger::LEVEL_WARNING);
+		}
+	}
+
 	public function sendSMS($number,$mesage){
 		$msg = 'https://bsms-portal.convexinteractive.com/api_sms/api.php?key=f546245e7023cc890fc7566f4a62b774&receiver='.$number.'&sender=SHINESTAR&msgdata='.rawurlencode($mesage);
 		//Try using %0A in the URL, just like you've used %20 instead of the space character.

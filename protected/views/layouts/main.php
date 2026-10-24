@@ -393,6 +393,11 @@
                                 <li>
                                     <a href="<?php echo Yii::app()->baseUrl.'/user/add'?>">Add User</a>
                                 </li>
+                                <?php if($userModel['user_type']['id'] == 1){?>
+                                <li>
+                                    <a href="<?php echo Yii::app()->baseUrl.'/activitylog'?>">Activity Logs</a>
+                                </li>
+                                <?php } ?>
                             </ul>
                             <!-- /.nav-second-level -->
                         </li>

@@ -101,6 +101,8 @@
 .ps-c4 .ps-icon { background: #1f9d57; }
 .ps-c5 .ps-icon { background: #d9891a; }
 .ps-c6 .ps-icon { background: #d13b55; }
+.ps-c7 .ps-icon { background: #9f1239; }
+.ps-c8 .ps-icon { background: #0369a1; }
 
 .ps-c1 { border-top: 3px solid #5b6b7a; }
 .ps-c2 { border-top: 3px solid #1a9c8a; }
@@ -108,6 +110,8 @@
 .ps-c4 { border-top: 3px solid #1f9d57; }
 .ps-c5 { border-top: 3px solid #d9891a; }
 .ps-c6 { border-top: 3px solid #d13b55; }
+.ps-c7 { border-top: 3px solid #9f1239; }
+.ps-c8 { border-top: 3px solid #0369a1; }
 </style>
 
 <div class="ps-wrap">
@@ -122,35 +126,35 @@
 
 	<div class="ps-section">Inventory</div>
 	<div class="row">
-		<div class="col-lg-4 col-md-4 col-sm-6">
+		<!-- <div class="col-lg-4 col-md-4 col-sm-6">
 			<div class="ps-tile ps-c1">
 				<div class="ps-tile-top">
 					<div class="ps-icon"><i class="fa fa-th"></i></div>
 					<div class="ps-info">
 						<div class="ps-label">Total Plots</div>
-						<div class="ps-value"><?php echo number_format($totalPlots); ?></div>
+						<div class="ps-value"><?php //echo number_format($totalPlots); ?></div>
 					</div>
 				</div>
 				<div class="ps-tile-foot">
-					<a href="<?php echo $baseUrl.'/plot'; ?>">View all plots <i class="fa fa-angle-right"></i></a>
+					<a href="<?php //echo $baseUrl.'/plot'; ?>">View all plots <i class="fa fa-angle-right"></i></a>
 				</div>
 			</div>
-		</div>
+		</div> -->
 
-		<div class="col-lg-4 col-md-4 col-sm-6">
+		<!-- <div class="col-lg-4 col-md-4 col-sm-6">
 			<div class="ps-tile ps-c2">
 				<div class="ps-tile-top">
 					<div class="ps-icon"><i class="fa fa-check"></i></div>
 					<div class="ps-info">
 						<div class="ps-label">Total Available Plots</div>
-						<div class="ps-value"><?php echo number_format($activePlots); ?></div>
+						<div class="ps-value"><?php //echo number_format($activePlots); ?></div>
 					</div>
 				</div>
 				<div class="ps-tile-foot">
-					<a href="<?php echo $baseUrl.'/plot?status=0'; ?>">View available only <i class="fa fa-angle-right"></i></a>
+					<a href="<?php //echo $baseUrl.'/plot?status=0'; ?>">View available only <i class="fa fa-angle-right"></i></a>
 				</div>
 			</div>
-		</div>
+		</div> -->
 
 		<div class="col-lg-4 col-md-4 col-sm-6">
 			<div class="ps-tile ps-c3">
@@ -160,9 +164,36 @@
 						<div class="ps-label">Total Bookings</div>
 						<div class="ps-value"><?php echo number_format($totalBookings); ?></div>
 					</div>
+					<div class="ps-sub">
+						<div class="ps-sub-row">
+							<span class="k">&nbsp;</span>
+							<span class="v">&nbsp;</span>
+						</div>
+					</div>
 				</div>
 				<div class="ps-tile-foot">
 					<a href="<?php echo $baseUrl.'/booking'; ?>">View all bookings <i class="fa fa-angle-right"></i></a>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-lg-4 col-md-4 col-sm-6">
+			<div class="ps-tile ps-c7">
+				<div class="ps-tile-top">
+					<div class="ps-icon"><i class="fa fa-ban"></i></div>
+					<div class="ps-info">
+						<div class="ps-label">Cancelled Plots</div>
+						<div class="ps-value"><?php echo number_format($cancelledBookings); ?></div>
+					</div>
+					<div class="ps-sub">
+						<div class="ps-sub-row">
+							<span class="k">Total refund</span>
+							<span class="v">PKR <?php echo number_format($cancelledRefundTotal); ?></span>
+						</div>
+					</div>
+				</div>
+				<div class="ps-tile-foot">
+					<a href="<?php echo $baseUrl.'/report/cancelled'; ?>">View cancelled <i class="fa fa-angle-right"></i></a>
 				</div>
 			</div>
 		</div>
@@ -170,7 +201,7 @@
 
 	<div class="ps-section">Payment Status</div>
 	<div class="row">
-		<div class="col-lg-4 col-md-4 col-sm-6">
+		<div class="col-lg-3 col-md-3 col-sm-6">
 			<div class="ps-tile ps-c4">
 				<div class="ps-tile-top">
 					<div class="ps-icon"><i class="fa fa-check-circle"></i></div>
@@ -195,7 +226,7 @@
 			</div>
 		</div>
 
-		<div class="col-lg-4 col-md-4 col-sm-6">
+		<div class="col-lg-3 col-md-3 col-sm-6">
 			<div class="ps-tile ps-c5">
 				<div class="ps-tile-top">
 					<div class="ps-icon"><i class="fa fa-clock-o"></i></div>
@@ -220,7 +251,7 @@
 			</div>
 		</div>
 
-		<div class="col-lg-4 col-md-4 col-sm-6">
+		<div class="col-lg-3 col-md-3 col-sm-6">
 			<div class="ps-tile ps-c6">
 				<div class="ps-tile-top">
 					<div class="ps-icon"><i class="fa fa-warning"></i></div>
@@ -240,7 +271,32 @@
 					</div>
 				</div>
 				<div class="ps-tile-foot">
-					<a href="<?php echo $baseUrl.'/booking'; ?><?php //echo $baseUrl.'/booking/getledgerdetail'; ?>">View dues <i class="fa fa-angle-right"></i></a>
+					<a href="<?php echo $baseUrl.'/booking'; ?>">View dues <i class="fa fa-angle-right"></i></a>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-lg-3 col-md-3 col-sm-6">
+			<div class="ps-tile ps-c8">
+				<div class="ps-tile-top">
+					<div class="ps-icon"><i class="fa fa-bookmark"></i></div>
+					<div class="ps-info">
+						<div class="ps-label">Regular Bookings</div>
+						<div class="ps-value"><?php echo number_format($regularBookings); ?></div>
+					</div>
+					<div class="ps-sub">
+						<div class="ps-sub-row">
+							<span class="k">Bookings with balance</span>
+							<span class="v"><?php echo number_format($remainingCount); ?></span>
+						</div>	
+						<div class="ps-sub-row">
+							<span class="k">Bookings with Due amount</span>
+							<span class="v"><?php echo number_format($dueCount); ?></span>
+						</div>
+					</div>
+				</div>
+				<div class="ps-tile-foot">
+					<a href="<?php echo $baseUrl.'/booking'; ?>">View bookings <i class="fa fa-angle-right"></i></a>
 				</div>
 			</div>
 		</div>
