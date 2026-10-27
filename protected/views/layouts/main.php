@@ -521,7 +521,9 @@
                                 <li>
                                     <a href="<?php echo Yii::app()->baseUrl.'/report/callingreport'?>">Calling Report</a>
                                 </li>
-                                
+                                <li>
+                                    <a href="<?php echo Yii::app()->baseUrl.'/report/blockreport'?>">Block Report</a>
+                                </li>
                             </ul>
                         </li>
                         <?php }?>
