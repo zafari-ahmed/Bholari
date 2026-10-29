@@ -30,7 +30,7 @@ function recovery_render_layout($content, $pageTitle = 'Recovery')
 </head>
 <body>
 <div id="wrapper">
-    <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+    <nav class="navbar navbar-default navbar-static-top recovery-navbar" role="navigation" style="margin-bottom: 0">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                 <span class="sr-only">Toggle navigation</span>
@@ -38,22 +38,38 @@ function recovery_render_layout($content, $pageTitle = 'Recovery')
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="<?php echo recovery_base_url('index.php?page=dashboard'); ?>"><?php echo htmlspecialchars($config['app_name']); ?></a>
+            <a class="navbar-brand" href="<?php echo recovery_base_url('index.php?page=dashboard'); ?>">
+                <i class="fa fa-phone-square"></i>
+                <span class="recovery-brand-text">GB - Recovery Portal</span>
+            </a>
         </div>
-        <ul class="nav navbar-top-links navbar-right">
-            <?php if ($user): ?>
-            <li><span class="navbar-text"><?php echo htmlspecialchars($user['name']); ?> (<?php echo htmlspecialchars($user['type']); ?>)</span></li>
-            <li><a href="<?php echo recovery_base_url('api/logout.php'); ?>"><i class="fa fa-sign-out fa-fw"></i> Logout</a></li>
-            <?php endif; ?>
-        </ul>
         <?php if ($user): ?>
+        <ul class="nav navbar-top-links navbar-right recovery-top-links">
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-user fa-fw"></i>
+                    <span class="recovery-user-name"><?php echo htmlspecialchars($user['name']); ?></span>
+                    <span class="label label-<?php echo recovery_is_manager() ? 'primary' : 'info'; ?> recovery-role-badge"><?php echo recovery_is_manager() ? 'Manager' : 'Staff'; ?></span>
+                    <i class="fa fa-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-user">
+                    <li>
+                        <a href="#"><i class="fa fa-user fa-fw"></i> <?php echo htmlspecialchars($user['username']); ?></a>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
+                        <a href="<?php echo recovery_base_url('api/logout.php'); ?>"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
         <div class="navbar-default sidebar" role="navigation">
             <div class="sidebar-nav navbar-collapse">
                 <ul class="nav" id="side-menu">
                     <li class="<?php echo $currentPage === 'dashboard' ? 'active' : ''; ?>">
                         <a href="<?php echo recovery_base_url('index.php?page=dashboard'); ?>"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
                     </li>
-                    <li class="<?php echo $currentPage === 'bookings' ? 'active' : ''; ?>">
+                    <li class="<?php echo in_array($currentPage, array('bookings', 'booking'), true) ? 'active' : ''; ?>">
                         <a href="<?php echo recovery_base_url('index.php?page=bookings'); ?>"><i class="fa fa-book fa-fw"></i> Bookings</a>
                     </li>
                     <li class="<?php echo $currentPage === 'chat' ? 'active' : ''; ?>">
@@ -76,7 +92,7 @@ function recovery_render_layout($content, $pageTitle = 'Recovery')
     <div id="page-wrapper" style="<?php echo $user ? '' : 'margin-left:0;'; ?>">
         <div class="row">
             <div class="col-lg-12">
-                <h1 class="page-header"><?php echo htmlspecialchars($pageTitle); ?></h1>
+                <h1 class="page-header recovery-page-header"><?php echo htmlspecialchars($pageTitle); ?></h1>
             </div>
         </div>
         <?php if ($flash): ?>

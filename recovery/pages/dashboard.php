@@ -10,25 +10,98 @@ $config = recovery_config();
 ob_start();
 ?>
 <div class="row">
-    <div class="col-lg-3 col-md-6">
-        <div class="panel panel-primary recovery-stat-card">
-            <div class="panel-heading"><div class="row"><div class="col-xs-3"><i class="fa fa-book fa-3x"></i></div><div class="col-xs-9 text-right"><div class="huge"><?php echo (int)$stats['total_bookings']; ?></div><div>Assigned Bookings</div></div></div></div>
+    <div class="col-lg-4 col-md-4 col-sm-6">
+        <div class="panel panel-yellow recovery-stat-card">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-3"><i class="fa fa-clock-o fa-3x"></i></div>
+                    <div class="col-xs-9 text-right">
+                        <div class="huge"><?php echo number_format((int)$stats['remaining_count']); ?></div>
+                        <div>Booking with Remaining Amount</div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                Bookings with balance · PKR <?php echo number_format((float)$stats['remaining_amount_total']); ?>
+            </div>
         </div>
     </div>
-    <div class="col-lg-3 col-md-6">
+    <div class="col-lg-4 col-md-4 col-sm-6">
         <div class="panel panel-red recovery-stat-card">
-            <div class="panel-heading"><div class="row"><div class="col-xs-3"><i class="fa fa-exclamation-triangle fa-3x"></i></div><div class="col-xs-9 text-right"><div class="huge"><?php echo (int)$stats['due_count']; ?></div><div>With Dues</div></div></div></div>
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-3"><i class="fa fa-warning fa-3x"></i></div>
+                    <div class="col-xs-9 text-right">
+                        <div class="huge"><?php echo number_format((int)$stats['due_count']); ?></div>
+                        <div>Bookings With Due Amount</div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                Overdue · PKR <?php echo number_format((float)$stats['due_amount_total']); ?>
+            </div>
         </div>
     </div>
-    <div class="col-lg-3 col-md-6">
+    <div class="col-lg-4 col-md-4 col-sm-6">
+        <div class="panel panel-primary recovery-stat-card">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-3"><i class="fa fa-bookmark fa-3x"></i></div>
+                    <div class="col-xs-9 text-right">
+                        <div class="huge"><?php echo number_format((int)$stats['regular_bookings']); ?></div>
+                        <div>Regular Bookings</div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                Remaining − Due
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4 col-md-4 col-sm-6">
+        <div class="panel panel-info recovery-stat-card">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-3"><i class="fa fa-book fa-3x"></i></div>
+                    <div class="col-xs-9 text-right">
+                        <div class="huge"><?php echo number_format((int)$stats['total_bookings']); ?></div>
+                        <div>Assigned Bookings</div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                Booking with Remaining Amount + Full Payment Booking
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-6">
         <div class="panel panel-green recovery-stat-card">
-            <div class="panel-heading"><div class="row"><div class="col-xs-3"><i class="fa fa-phone fa-3x"></i></div><div class="col-xs-9 text-right"><div class="huge"><?php echo (int)$stats['calls_today']; ?></div><div>Calls Today</div></div></div></div>
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-3"><i class="fa fa-phone fa-3x"></i></div>
+                    <div class="col-xs-9 text-right">
+                        <div class="huge"><?php echo number_format((int)$stats['calls_today']); ?></div>
+                        <div>Calls Today</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <?php if (recovery_is_manager()): ?>
-    <div class="col-lg-3 col-md-6">
-        <div class="panel panel-yellow recovery-stat-card">
-            <div class="panel-heading"><div class="row"><div class="col-xs-3"><i class="fa fa-check fa-3x"></i></div><div class="col-xs-9 text-right"><div class="huge"><?php echo (int)$stats['pending_approvals']; ?></div><div>Pending Approvals</div></div></div></div>
+    <div class="col-lg-4 col-md-4 col-sm-6">
+        <div class="panel panel-default recovery-stat-card">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-3"><i class="fa fa-check fa-3x"></i></div>
+                    <div class="col-xs-9 text-right">
+                        <div class="huge"><?php echo number_format((int)$stats['pending_approvals']); ?></div>
+                        <div>Pending Approvals</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <?php endif; ?>

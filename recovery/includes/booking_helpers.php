@@ -230,15 +230,105 @@ function recovery_booking_options($blocks)
     return $options;
 }
 
+/**
+ * Same Remaining / Due / Regular counts as Yii dashboard/stats.
+ * Manager: all phase bookings. Staff: assigned blocks only.
+ */
+function recovery_payment_status_stats($blocks = null)
+{
+    $config = recovery_config();
+    $phaseId = (int)$config['default_phase_id'];
+    $pdo = recovery_db();
+
+    $sql = "
+        SELECT
+            cp.id AS booking_id,
+            (
+                (COALESCE(p.total,0) - COALESCE(p.discount,0))
+                + CASE WHEN p.is_corner = 1 THEN (COALESCE(p.is_corner_amount,0)/100) * COALESCE(p.total,0) ELSE 0 END
+                + CASE WHEN p.is_road_facing = 1 THEN (COALESCE(p.is_road_facing_amount,0)/100) * COALESCE(p.total,0) ELSE 0 END
+                + CASE WHEN p.is_park_facing = 1 THEN (COALESCE(p.is_park_facing_amount,0)/100) * COALESCE(p.total,0) ELSE 0 END
+                + CASE WHEN p.is_west_open = 1 THEN (COALESCE(p.is_west_open_amount,0)/100) * COALESCE(p.total,0) ELSE 0 END
+            ) AS booking_total,
+            (
+                COALESCE((
+                    SELECT SUM(cpt.amount) FROM customer_plot_transactions cpt
+                    WHERE cpt.plot_id = cp.id AND cpt.status = 1
+                ), 0)
+                + COALESCE((
+                    SELECT SUM(cpet.amount) FROM customer_plot_extra_transactions cpet
+                    WHERE cpet.plot_id = cp.id AND cpet.status = 1
+                ), 0)
+            ) AS total_paid
+        FROM customer_plots cp
+        INNER JOIN plots p ON p.id = cp.plot_id
+        WHERE cp.status != 0 AND cp.status != 3 AND cp.phase_id = :phase_id
+    ";
+    $params = array(':phase_id' => $phaseId);
+
+    if (!recovery_is_manager()) {
+        if (empty($blocks)) {
+            return array(
+                'remaining_count' => 0,
+                'remaining_amount_total' => 0,
+                'due_count' => 0,
+                'due_amount_total' => 0,
+                'regular_bookings' => 0,
+            );
+        }
+        $placeholders = array();
+        foreach (array_values($blocks) as $i => $block) {
+            $key = ':block' . $i;
+            $placeholders[] = $key;
+            $params[$key] = $block;
+        }
+        $sql .= ' AND p.block_number IN (' . implode(',', $placeholders) . ')';
+    }
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $rows = $stmt->fetchAll();
+
+    $remainingCount = 0;
+    $remainingAmountTotal = 0;
+    $dueCount = 0;
+    $dueAmountTotal = 0;
+
+    foreach ($rows as $row) {
+        $bookingTotal = (float)$row['booking_total'];
+        $totalPaid = (float)$row['total_paid'];
+        $remaining = max(0, $bookingTotal - $totalPaid);
+
+        if ($remaining > 0) {
+            $remainingCount++;
+            $remainingAmountTotal += $remaining;
+        }
+
+        // Same fallback as DashboardController::actionStats
+        $dues = recovery_calculate_dues((int)$row['booking_id']);
+        $dueAmount = ($dues['status'] === 'ok')
+            ? (float)$dues['due_amount']
+            : $remaining;
+
+        if ($dueAmount > 0) {
+            $dueCount++;
+            $dueAmountTotal += $dueAmount;
+        }
+    }
+
+    return array(
+        'remaining_count' => $remainingCount,
+        'remaining_amount_total' => $remainingAmountTotal,
+        'due_count' => $dueCount,
+        'due_amount_total' => $dueAmountTotal,
+        'regular_bookings' => max(0, $remainingCount - $dueCount),
+    );
+}
+
 function recovery_dashboard_stats($blocks, $staffId = null)
 {
     $bookings = recovery_fetch_bookings($blocks);
-    $dueCount = 0;
-    foreach ($bookings as $row) {
-        if ($row['due_amount'] > 0) {
-            $dueCount++;
-        }
-    }
+    $paymentStats = recovery_payment_status_stats($blocks);
 
     $pdo = recovery_db();
     $callsToday = 0;
@@ -263,12 +353,11 @@ function recovery_dashboard_stats($blocks, $staffId = null)
         )->fetchColumn();
     }
 
-    return array(
+    return array_merge($paymentStats, array(
         'total_bookings' => count($bookings),
-        'due_count' => $dueCount,
         'calls_today' => $callsToday,
         'pending_approvals' => $pendingApprovals,
-    );
+    ));
 }
 
 function recovery_staff_call_stats_today()

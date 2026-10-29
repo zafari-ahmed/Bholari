@@ -38,7 +38,7 @@ ob_start();
         <table class="table table-striped table-bordered recovery-datatable">
             <thead>
                 <tr>
-                    <th>Date</th><th>Staff/Manager</th><th>Booking</th><th>Customer</th><th>Plot</th><th>Remarks</th><th>Next Reminder</th>
+                    <th>Date</th><th>Staff/Manager</th><th>Booking</th><th>Customer</th><th>Plot</th><th>Remarks</th><th>Next Reminder</th><th></th>
                 </tr>
             </thead>
             <tbody>
@@ -47,15 +47,21 @@ ob_start();
                 $caller = !empty($row['recovery_staff_id'])
                     ? trim($row['staff_first_name'] . ' ' . $row['staff_last_name']) . ' (Staff)'
                     : trim($row['manager_first_name']) . ' (Manager)';
+                $bookingUrl = recovery_base_url('index.php?page=booking&id=' . (int)$row['booking_id']);
                 ?>
                 <tr>
                     <td><?php echo date('d M, Y H:i', strtotime($row['created_at'])); ?></td>
                     <td><?php echo htmlspecialchars($caller); ?></td>
-                    <td>#<?php echo (int)$row['booking_id']; ?></td>
+                    <td>
+                        <a href="<?php echo $bookingUrl; ?>">#<?php echo (int)$row['booking_id']; ?></a>
+                    </td>
                     <td><?php echo htmlspecialchars($row['customer_name']); ?></td>
                     <td><?php echo htmlspecialchars($row['block_number'] . ' / ' . $row['plot_type'] . ' / ' . $row['plot_number']); ?></td>
                     <td><?php echo htmlspecialchars($row['remarks']); ?></td>
                     <td><?php echo date('d M, Y', strtotime($row['next_reminder'])); ?></td>
+                    <td>
+                        <a class="btn btn-xs btn-primary" href="<?php echo $bookingUrl; ?>">Open</a>
+                    </td>
                 </tr>
             <?php endforeach; ?>
             </tbody>
