@@ -133,7 +133,22 @@ ob_start();
             <div class="panel-body recovery-chat-box" style="height:220px;">
                 <?php foreach (array_slice(recovery_fetch_team_messages(8), -8) as $msg): ?>
                     <div class="recovery-chat-message <?php echo htmlspecialchars($msg['status']); ?>">
-                        <div class="recovery-chat-meta"><?php echo htmlspecialchars($msg['sender_name']); ?> · <?php echo date('d M, Y H:i', strtotime($msg['created_at'])); ?></div>
+                        <div class="recovery-chat-meta">
+                            <?php echo htmlspecialchars($msg['sender_name']); ?>
+                            · <?php echo date('d M, Y H:i', strtotime($msg['created_at'])); ?>
+                            <?php if (!empty($msg['booking_id'])): ?>
+                                · Booking
+                                <a href="<?php echo recovery_base_url('index.php?page=booking&id=' . (int)$msg['booking_id']); ?>">
+                                    #<?php echo (int)$msg['booking_id']; ?>
+                                </a>
+                                <?php if (!empty($msg['customer_name'])): ?>
+                                    (<?php echo htmlspecialchars($msg['customer_name']); ?>
+                                    - <?php echo htmlspecialchars($msg['block_number'] . '/' . $msg['plot_type'] . '/' . $msg['plot_number']); ?>)
+                                <?php endif; ?>
+                            <?php else: ?>
+                                · General
+                            <?php endif; ?>
+                        </div>
                         <div><?php echo nl2br(htmlspecialchars($msg['display_message'])); ?></div>
                     </div>
                 <?php endforeach; ?>
