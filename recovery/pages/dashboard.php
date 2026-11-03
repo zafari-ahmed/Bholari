@@ -21,9 +21,11 @@ ob_start();
                     </div>
                 </div>
             </div>
+            <?php if (recovery_is_manager()): ?>
             <div class="panel-footer">
                 Bookings with balance · PKR <?php echo number_format((float)$stats['remaining_amount_total']); ?>
             </div>
+            <?php endif; ?>
         </div>
     </div>
     <div class="col-lg-4 col-md-4 col-sm-6">
@@ -37,9 +39,11 @@ ob_start();
                     </div>
                 </div>
             </div>
+            <?php if (recovery_is_manager()): ?>
             <div class="panel-footer">
                 Overdue · PKR <?php echo number_format((float)$stats['due_amount_total']); ?>
             </div>
+            <?php endif; ?>
         </div>
     </div>
     <div class="col-lg-4 col-md-4 col-sm-6">
@@ -53,9 +57,9 @@ ob_start();
                     </div>
                 </div>
             </div>
-            <div class="panel-footer">
+            <!-- <div class="panel-footer">
                 Remaining − Due
-            </div>
+            </div> -->
         </div>
     </div>
 </div>
@@ -72,9 +76,9 @@ ob_start();
                     </div>
                 </div>
             </div>
-            <div class="panel-footer">
+            <!-- <div class="panel-footer">
                 Booking with Remaining Amount + Full Payment Booking
-            </div>
+            </div> -->
         </div>
     </div>
     <div class="col-lg-4 col-md-4 col-sm-6">

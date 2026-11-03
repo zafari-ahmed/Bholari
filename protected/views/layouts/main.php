@@ -510,7 +510,7 @@
                         <?php }?>
                         
                         
-                        <?php if($userModel['user_type']['id'] == 6 || $userModel['user_type']['id'] == 7){?>
+                        <?php if($userModel['user_type']['id'] == 6 || $userModel['user_type']['id'] == 7 || $userModel['user_type']['id'] == 8){?>
                         
                         <li>
                             <a href="#"><i class="fa fa-dashboard fa-fw"></i> Reports<span class="fa arrow"></span></a>
