@@ -813,12 +813,64 @@ class ReportController extends Controller
         if (!empty($_POST['mode'])) {
             $criteria->compare('plot.block_number', $_POST['mode']);
         }
+
         $criteria->order = 't.createdOn ASC';
         $criteria->addCondition('t.status = 1');
         
         $data['bookings'] = CustomerPlots::model()
             ->with('plot','customer','agent')
             ->findAll($criteria);
+
+        // Selected payment date range (used only for "Selected Period Txns" box / row highlight)
+        $hasDateFilter = !empty($_POST['start_date']) || !empty($_POST['end_date']);
+        $startDate = !empty($_POST['start_date']) ? $_POST['start_date'].' 00:00:00' : date('Y-m-01').' 00:00:00';
+        $endDate = !empty($_POST['end_date']) ? $_POST['end_date'].' 23:59:59' : date('Y-m-t').' 23:59:59';
+        if (!$hasDateFilter) {
+            // Default = current month (same as old Current Month Txns)
+            $startDate = date('Y-m-01').' 00:00:00';
+            $endDate = date('Y-m-t').' 23:59:59';
+        }
+
+        $periodPaidMap = array();
+        if (!empty($data['bookings'])) {
+            $bookingIds = array();
+            foreach ($data['bookings'] as $b) {
+                $bookingIds[] = (int)$b->id;
+            }
+            $idList = implode(',', $bookingIds);
+
+            $mainRows = Yii::app()->db->createCommand("
+                SELECT plot_id, SUM(amount) AS amt
+                FROM customer_plot_transactions
+                WHERE status = 1
+                  AND plot_id IN ($idList)
+                  AND createdOn >= :s AND createdOn <= :e
+                GROUP BY plot_id
+            ")->queryAll(true, array(':s' => $startDate, ':e' => $endDate));
+
+            $extraRows = Yii::app()->db->createCommand("
+                SELECT plot_id, SUM(amount) AS amt
+                FROM customer_plot_extra_transactions
+                WHERE status = 1
+                  AND plot_id IN ($idList)
+                  AND createdOn >= :s AND createdOn <= :e
+                GROUP BY plot_id
+            ")->queryAll(true, array(':s' => $startDate, ':e' => $endDate));
+
+            foreach ($mainRows as $r) {
+                $periodPaidMap[(int)$r['plot_id']] = (float)$r['amt'];
+            }
+            foreach ($extraRows as $r) {
+                $pid = (int)$r['plot_id'];
+                $periodPaidMap[$pid] = (isset($periodPaidMap[$pid]) ? $periodPaidMap[$pid] : 0) + (float)$r['amt'];
+            }
+        }
+
+        $data['hasDateFilter'] = $hasDateFilter;
+        $data['periodPaidMap'] = $periodPaidMap;
+        $data['periodLabel'] = $hasDateFilter
+            ? trim(@$_POST['start_date'].' to '.@$_POST['end_date'])
+            : date('M, Y');
     
         $data['agents'] = Agents::model()->findAll();
         $data['agentSelected'] = Agents::model()->findByPk($_POST['agent']);
@@ -834,11 +886,10 @@ class ReportController extends Controller
             set_time_limit(0);
     
             header('Content-Type: text/csv; charset=utf-8');
-            header('Content-Disposition: attachment; filename=calling_report_'.date('Ymd_His').'.csv');
+            header('Content-Disposition: attachment; filename=block_report_'.date('Ymd_His').'.csv');
     
             $output = fopen('php://output', 'w');
     
-            // CSV Header
             fputcsv($output, array(
                 'Sr.#',
                 'Date',
@@ -856,6 +907,7 @@ class ReportController extends Controller
                 'Remarks'
             ));
     
+            $sr = 0;
             foreach($data['bookings'] as $ind => $row){
     
                 $plotBaseTotal = $this->finalViewBookingTotal($row->plot->id);
@@ -864,11 +916,15 @@ class ReportController extends Controller
                         intval(@$row->customerPlotExtraTransactionSum);
     
                 $remaining = @$plotBaseTotal['final_total'] - $paid;
+                if ($remaining <= 0) {
+                    continue;
+                }
+                $sr++;
     
                 $lastAmt = @$row->transactionSumsByNumber.' / '.@$row->customerPlotTransactionslastCalling->createdOn;
     
                 fputcsv($output, array(
-                    $ind + 1,
+                    $sr,
                     date('d-m-Y',strtotime($row->createdOn)),
                     'HR-'.$row->id,
                     $row->customer->name,
