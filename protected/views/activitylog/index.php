@@ -57,24 +57,55 @@
                             <th>User</th>
                             <th>Role</th>
                             <th>IP</th>
+                            <th>Device</th>
                             <th>Action</th>
+                            <th>Booking</th>
                             <th>Description</th>
-                            <!-- <th>URL</th> -->
-                            <!-- <th>Method</th> -->
                         </tr>
                     </thead>
                     <tbody>
                         <?php $logsList = $logs->getData(); ?>
                         <?php if($logsList){ foreach($logsList as $log): ?>
+                        <?php
+                            $bookingId = $log->resolveBookingId();
+                            $device = $log->device_type;
+                            if (!$device && !empty($log->request_data)) {
+                                $device = '-';
+                            }
+                            $device = $device ? $device : '-';
+                            $pageLabel = ActivityLogs::bookingPageLabel($log->action);
+                        ?>
                         <tr>
                             <td><?php echo date('d M, Y h:i A', strtotime($log->created_on))?></td>
                             <td><?php echo CHtml::encode($log->user_name)?></td>
                             <td><?php echo CHtml::encode(($log->user && $log->user->userType) ? $log->user->userType->name : '-')?></td>
                             <td><?php echo CHtml::encode($log->ip_address)?></td>
+                            <td>
+                                <?php if (strtolower($device) === 'mobile'): ?>
+                                    <span class="label label-info">Mobile</span>
+                                <?php elseif (strtolower($device) === 'tablet'): ?>
+                                    <span class="label label-warning">Tablet</span>
+                                <?php elseif (strtolower($device) === 'pc'): ?>
+                                    <span class="label label-default">PC</span>
+                                <?php else: ?>
+                                    <?php echo CHtml::encode($device)?>
+                                <?php endif; ?>
+                            </td>
                             <td><?php echo CHtml::encode(ucfirst($log->controller).' / '.ucfirst($log->action))?></td>
+                            <td>
+                                <?php if ($bookingId): ?>
+                                    <div><strong>GB-<?php echo (int)$bookingId?></strong></div>
+                                    <div style="margin-top:3px;">
+                                        <a target="_blank" href="<?php echo Yii::app()->baseUrl?>/booking/viewbooking/<?php echo (int)$bookingId?>">View Booking</a>
+                                        |
+                                        <a target="_blank" href="<?php echo Yii::app()->baseUrl?>/booking/bookingledger/<?php echo (int)$bookingId?>">Ledger</a>
+                                    </div>
+                                    <small class="text-muted"><?php echo CHtml::encode($pageLabel)?></small>
+                                <?php else: ?>
+                                    -
+                                <?php endif; ?>
+                            </td>
                             <td><?php echo CHtml::encode($log->description)?></td>
-                            <!-- <td style="max-width:240px;word-break:break-all;"><?php echo CHtml::encode($log->url)?></td> -->
-                            <!-- <td><?php echo CHtml::encode($log->method)?></td> -->
                         </tr>
                         <?php endforeach;} else { ?>
                         <tr>

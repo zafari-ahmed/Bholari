@@ -137,9 +137,9 @@ $userModel = Yii::app()->session->get('userModel');
                             $paidTotal = intval(@$data->customerPlotTransactionSum) + intval(@$data->customerPlotExtraTransactionSum);
                             $rem = ($plotBaseTotal['final_total'] - $paidTotal);
                             // Skip fully paid bookings (same as calling report)
-                            // if ($rem <= 0) {
-                            //     continue;
-                            // }
+                            if($rem <= 0 || $pCost == $tCost){
+                                continue;
+                            }
                             $totalBookings++;
                             $periodPaid = isset($periodPaidMap[(int)$data->id]) ? (float)$periodPaidMap[(int)$data->id] : 0;
                             $hasPeriodTxn = $periodPaid > 0;

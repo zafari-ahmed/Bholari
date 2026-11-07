@@ -57,6 +57,7 @@ class DashboardController extends Controller
 		$sql = "
 			SELECT
 				cp.id AS booking_id,
+				p.block_number AS block_number,
 				(
 					(COALESCE(p.total,0) - COALESCE(p.discount,0))
 					+ CASE WHEN p.is_corner = 1 THEN (COALESCE(p.is_corner_amount,0)/100) * COALESCE(p.total,0) ELSE 0 END
@@ -86,19 +87,35 @@ class DashboardController extends Controller
 		$remainingAmountTotal = 0;
 		$dueCount = 0;
 		$dueAmountTotal = 0;
+		$fullPaymentByBlock = array();
+		$remainingByBlock = array();
+		$dueByBlock = array();
+		$regularByBlock = array();
 
 		foreach ($rows as $row) {
 			$bookingTotal = (float)$row['booking_total'];
 			$totalPaid = (float)$row['total_paid'];
 			$remaining = max(0, $bookingTotal - $totalPaid);
+			$block = trim((string)$row['block_number']);
+			if ($block === '') {
+				$block = 'N/A';
+			}
 
 			if ($remaining <= 0) {
 				$fullPaymentCount++;
 				$fullPaymentPlotAmount += $bookingTotal;
 				$fullPaymentPaidAmount += $totalPaid;
+				if (!isset($fullPaymentByBlock[$block])) {
+					$fullPaymentByBlock[$block] = 0;
+				}
+				$fullPaymentByBlock[$block]++;
 			} else {
 				$remainingCount++;
 				$remainingAmountTotal += $remaining;
+				if (!isset($remainingByBlock[$block])) {
+					$remainingByBlock[$block] = 0;
+				}
+				$remainingByBlock[$block]++;
 			}
 
 			$dues = CustomerPlots::calculateDues((int)$row['booking_id']);
@@ -106,14 +123,29 @@ class DashboardController extends Controller
 				? (float)$dues['due_amount']
 				: $remaining;
 
-			if ($dueAmount > 0) {
+			// Due / Regular only among bookings that still have remaining balance
+			if ($remaining > 0 && $dueAmount > 0) {
 				$dueCount++;
 				$dueAmountTotal += $dueAmount;
+				if (!isset($dueByBlock[$block])) {
+					$dueByBlock[$block] = 0;
+				}
+				$dueByBlock[$block]++;
+			} elseif ($remaining > 0) {
+				if (!isset($regularByBlock[$block])) {
+					$regularByBlock[$block] = 0;
+				}
+				$regularByBlock[$block]++;
 			}
 		}
 
 		// Regular = remaining balance bookings that are not overdue
 		$regularBookings = max(0, $remainingCount - $dueCount);
+
+		ksort($fullPaymentByBlock, SORT_NATURAL | SORT_FLAG_CASE);
+		ksort($remainingByBlock, SORT_NATURAL | SORT_FLAG_CASE);
+		ksort($dueByBlock, SORT_NATURAL | SORT_FLAG_CASE);
+		ksort($regularByBlock, SORT_NATURAL | SORT_FLAG_CASE);
 
 		$this->render('stats', array(
 			'totalPlots' => $totalPlots,
@@ -129,6 +161,10 @@ class DashboardController extends Controller
 			'dueCount' => $dueCount,
 			'dueAmountTotal' => $dueAmountTotal,
 			'regularBookings' => $regularBookings,
+			'fullPaymentByBlock' => $fullPaymentByBlock,
+			'remainingByBlock' => $remainingByBlock,
+			'dueByBlock' => $dueByBlock,
+			'regularByBlock' => $regularByBlock,
 		));
 	}
 

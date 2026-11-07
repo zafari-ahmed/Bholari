@@ -144,25 +144,32 @@ $userModel = Yii::app()->session->get('userModel');
                             $totalBookings = 0;
                             $totalDueBookings = 0;
                         ?>
-                        <?php $dueAmTot = 0;$i=0;if(@$bookings){ foreach($bookings as $ii => $data): $totalBookings++;$tCost = $this->plotTotal($data->plot->id,false); $plotBaseTotal = $this->finalViewBookingTotal($data->plot->id);$pCost = intval(@$data->customerPlotTransactionSum);$peCost = intval(@$data->customerPlotExtraTransactionSum); $rem = ($plotBaseTotal['final_total'] - (intval(@$data->customerPlotTransactionSum) + intval(@$data->customerPlotExtraTransactionSum))); if($rem > 0){if($pCost != $tCost){ ?>
-                            <?php
-                                
-                                $paymentSchedule = $this->getPaymentScheduleArray($data->id);
-                                $monthlyDues = @$this->getMonthlyDue($data->monthly_start_date, @$paymentSchedule['monthly_installment']['amount']??0);
-                                //echo '<pre>';print_r($paymentSchedule);exit;
-                                $dues = $this->calculateBookingDues($data->id);
-                                
-                                // Count bookings having dues
-                                if (!empty($dues['due_amount']) && $dues['due_amount'] > 0) {
-                                    $totalDueBookings++;
-                                }
-                                
-                                //if($dues['due_amount'] > 0){
-                                //if (( empty($_POST['due']) || ($_POST['due'] == 1 && $dues['due_months'] >= 1 && $dues['due_months'] <= 3) || ($_POST['due'] == 3 && $dues['due_months'] >= 4) ) && $dues['due_amount'] > 0 ) {
-                                if ( $dues['due_amount'] > 0 && ( empty($_POST['due']) || ($_POST['due'] == 1 && $dues['due_months'] >= 1 && $dues['due_months'] <= 3) || ($_POST['due'] == 3 && $dues['due_months'] >= 4 && $dues['due_months'] <= 6) || ($_POST['due'] == 6 && $dues['due_months'] > 6) ) ) {
- 
-                                
-                            ?>
+                        <?php $dueAmTot = 0;$i=0;if(@$bookings){ foreach($bookings as $ii => $data):
+                            $tCost = $this->plotTotal($data->plot->id,false);
+                            $plotBaseTotal = $this->finalViewBookingTotal($data->plot->id);
+                            $pCost = intval(@$data->customerPlotTransactionSum);
+                            $peCost = intval(@$data->customerPlotExtraTransactionSum);
+                            $rem = ($plotBaseTotal['final_total'] - (intval(@$data->customerPlotTransactionSum) + intval(@$data->customerPlotExtraTransactionSum)));
+                            // Skip fully paid (no remaining amount)
+                            if($rem <= 0 || $pCost == $tCost){
+                                continue;
+                            }
+
+                            $paymentSchedule = $this->getPaymentScheduleArray($data->id);
+                            $monthlyDues = @$this->getMonthlyDue($data->monthly_start_date, @$paymentSchedule['monthly_installment']['amount']??0);
+                            $dues = $this->calculateBookingDues($data->id);
+
+                            // Stats: all remaining-balance bookings
+                            $totalBookings++;
+                            if (!empty($dues['due_amount']) && $dues['due_amount'] > 0) {
+                                $totalDueBookings++;
+                            }
+
+                            // Table: only show rows that match due filter
+                            if (!( $dues['due_amount'] > 0 && ( empty($_POST['due']) || ($_POST['due'] == 1 && $dues['due_months'] >= 1 && $dues['due_months'] <= 3) || ($_POST['due'] == 3 && $dues['due_months'] >= 4 && $dues['due_months'] <= 6) || ($_POST['due'] == 6 && $dues['due_months'] > 6) ) )) {
+                                continue;
+                            }
+                        ?>
                             <tr>
                                 <td><?php echo $i+1;?></td>
                                 <td style="width:7%"><?php echo date('d-m-Y',strtotime($data->createdOn))?></td>
@@ -189,24 +196,12 @@ $userModel = Yii::app()->session->get('userModel');
                                     <?php echo '<b>'.number_format(@$dues['monthly_amount']).' * '.@$dues['due_months'].'</b><br/>'.'Rs. '.number_format(@$dues['due_amount'],2,'.',',');
                                     
                                         $dueAmTot = $dueAmTot + $dues['due_amount'];
-                                        /*if(@$paymentSchedule['dues']['due_months'] > 0)
-                                            echo (@$paymentSchedule['dues']['due_months'] ?? 0 ). ' Months Due<br/>';
-                                            echo number_format(@$paymentSchedule['dues']['due_months']*@$paymentSchedule['booking']['total']);
-                                    /*if (!empty($paymentSchedule['dues']['summary'])) {
-                                        echo '<br/><ul style="margin:0; padding-left:15px;">';
-                                
-                                        foreach ($paymentSchedule['dues']['summary'] as $stage => $amount) {
-                                            echo '<li>' . ucfirst(str_replace('_',' ', $stage)) . ' : ' . number_format($amount) . '</li>';
-                                        }
-                                
-                                        echo '</ul>';
-                                    }*/
                                     ?>
                                 </td>
                                 <td><?php echo getInitials(@$data->agent->name)?></td>
                                 <td style="width:25%" colspan=2></td>
                             </tr>
-                       <?php $i++;}}} endforeach; }?>
+                       <?php $i++; endforeach; }?>
                        <?php 
                         $totalPaidBookings = $totalBookings - $totalDueBookings;
 
@@ -222,14 +217,14 @@ $userModel = Yii::app()->session->get('userModel');
                     </tr>
                 </table>
                 <div class="row">
-                    <div class="col-lg-4">
+                    <!-- <div class="col-lg-4">
                         <div class="panel panel-default">
                             <div class="panel-body">
                                 <strong>Total Bookings:</strong>
-                                <?php echo $totalBookings; ?>
+                                <?php //echo $totalBookings; ?>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 
                     <div class="col-lg-4">
                         <div class="panel panel-danger">

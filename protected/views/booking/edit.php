@@ -275,7 +275,7 @@ if($userModel['user_type']['id'] == 1){
                             
                             <?php if($booking->customerPlotTransactions){ foreach( $booking->customerPlotTransactions as $ind => $cpt): if($cpt->status==1){?>
                             <div class="col-lg-12 form-group paymentModeBox" style="padding-left: 0px;" id="paymentModeBox_<?php echo $cpt->id?>">
-                                <?php $idsRes = [25,29,30,35,42];?>
+                                <?php $idsRes = [25,29,30,35,42,46];?>
                                 <?php if(in_array($userModel['id'],$idsRes)){?>
                                 <input name="transaction_id[]" value="<?php echo $cpt->id?>" type="hidden">
                                 <div class="form-group col-lg-1" style="margin-right: -5%;">

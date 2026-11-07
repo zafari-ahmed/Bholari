@@ -310,7 +310,8 @@ function recovery_payment_status_stats($blocks = null)
             ? (float)$dues['due_amount']
             : $remaining;
 
-        if ($dueAmount > 0) {
+        // Due only among bookings that still have remaining balance
+        if ($remaining > 0 && $dueAmount > 0) {
             $dueCount++;
             $dueAmountTotal += $dueAmount;
         }

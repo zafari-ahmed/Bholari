@@ -64,16 +64,26 @@ class Controller extends CController
 			if (!empty($_POST)) {
 				$payload['post'] = ActivityLogs::sanitizeRequest($_POST);
 			}
+			$urlPath = parse_url(Yii::app()->request->url, PHP_URL_PATH);
+			$bookingId = ActivityLogs::extractBookingId($this->id, $action->id, $urlPath, $_GET);
+			$deviceType = ActivityLogs::detectDevice();
+			$pageLabel = ActivityLogs::bookingPageLabel($action->id);
+			$description = $verb.' '.ucfirst($this->id).' / '.ucfirst($action->id);
+			if ($bookingId) {
+				$description = $verb.' '.$pageLabel.' — GB-'.$bookingId;
+			}
 
 			ActivityLogs::write(array(
 				'user_id' => $userId,
 				'user_name' => $userName !== '' ? $userName : 'Guest',
 				'controller' => $this->id,
 				'action' => $action->id,
+				'booking_id' => $bookingId,
 				'method' => $method,
-				'url' => parse_url(Yii::app()->request->url, PHP_URL_PATH),
+				'url' => $urlPath,
 				'ip_address' => ActivityLogs::clientIp(),
-				'description' => $verb.' '.ucfirst($this->id).' / '.ucfirst($action->id),
+				'device_type' => $deviceType,
+				'description' => $description,
 				'request_data' => $payload ? json_encode($payload) : null,
 			));
 		} catch (Exception $e) {

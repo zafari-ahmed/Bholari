@@ -81,16 +81,19 @@ class ActivitylogController extends Controller
 		header('Content-Type: text/csv');
 		header('Content-Disposition: attachment; filename="'.$fName.'"');
 		$fp = fopen('php://output', 'w');
-		fputcsv($fp, array('Date', 'User', 'Role', 'IP', 'Controller', 'Action', 'Description', 'URL', 'Method','Request Data'));
+		fputcsv($fp, array('Date', 'User', 'Role', 'IP', 'Device', 'Controller', 'Action', 'Booking', 'Description', 'URL', 'Method', 'Request Data'));
 		foreach ($logs as $log) {
 			$role = ($log->user && $log->user->userType) ? $log->user->userType->name : '';
+			$bookingId = $log->resolveBookingId();
 			fputcsv($fp, array(
 				$log->created_on,
 				$log->user_name,
 				$role,
 				$log->ip_address,
+				$log->device_type,
 				$log->controller,
 				$log->action,
+				$bookingId ? ('GB-'.$bookingId) : '',
 				$log->description,
 				$log->url,
 				$log->method,

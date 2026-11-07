@@ -323,7 +323,9 @@ class TransactionsController extends Controller
                         Transaction Message
                     </span></a>&nbsp;';
             //}
-            if($userModel['user_type_id']==1){
+            $idsRes = [25,29,30,35,42,46];
+            if(in_array($userModel['id'],$idsRes)){
+            //if($userModel['user_type_id']==1 ){
                 $actions .= '<a href="' . $deleteUrl . '"><span class="label label-danger">Delete</span></a>&nbsp;';    
             }
             

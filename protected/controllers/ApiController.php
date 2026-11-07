@@ -30,6 +30,7 @@ class ApiController extends Controller
 				'method' => 'POST',
 				'url' => Yii::app()->request->url,
 				'ip_address' => $ip,
+				'device_type' => ActivityLogs::detectDevice(),
 				'description' => 'Logged in successfully',
 				'request_data' => json_encode(array('email' => $email)),
 			), true);
@@ -43,6 +44,7 @@ class ApiController extends Controller
 				'method' => 'POST',
 				'url' => Yii::app()->request->url,
 				'ip_address' => $ip,
+				'device_type' => ActivityLogs::detectDevice(),
 				'description' => 'Failed login',
 				'request_data' => json_encode(array('email' => $email)),
 			), true);
