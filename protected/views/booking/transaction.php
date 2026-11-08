@@ -156,7 +156,7 @@ $formattedTransactions = $booking->getFormattedLatestTransaction();
                 <span class="label label-primary" style="font-size: 12px; margin-left: 4px;"><?php echo CHtml::encode($booking->customer->name); ?></span>
                 <?php endif; ?>
                 <span class="label label-success" style="font-size: 12px; margin-left: 4px;">PKR <?php echo number_format($bookingTotalAmt); ?></span>
-                <?php if(in_array($userModel['id'],[1,25,29,30,35,42])){?>
+                <?php if(in_array($userModel['id'],[1,25,29,30,35,42,46])){?>
                 <span class="pull-right">
                     <a href="<?php echo Yii::app()->baseUrl?>/booking/addoldtransaction/<?php echo $booking->id?>"><span class="label label-success">Add Old Transaction</span></a>
                 </span>
